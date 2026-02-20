@@ -1,0 +1,33 @@
+{
+  "id": "token-ease-v13",
+  "title": "Token Ease (v13 Rebuild)",
+  "description": "Rebuilt for FoundryVTT v13. Enhances native token movement by exposing custom easing functions, movement speed, and animation duration in token configuration. Originally created by Wasp & Kerrec Snowmane (FantasyCalendar); reconstructed for v13 compatibility by shakugannosaints.",
+  "authors": [
+    {
+      "name": "shakugannosaints",
+      "url": "https://github.com/shakugannosaints/"
+    }
+  ],
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13"
+  },
+  "esmodules": [
+    "scripts/module.js"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "languages/en.json"
+    }
+  ],
+  "url": "https://github.com/shakugannosaints/",
+  "manifest": "https://github.com/shakugannosaints/token-ease-v13/releases/latest/download/module.json",
+  "download": "https://github.com/shakugannosaints/token-ease-v13/releases/latest/download/module.zip",
+  "bugs": "https://github.com/shakugannosaints/token-ease-v13/issues",
+  "flags": {
+    "canUpload": true
+  }
+}
