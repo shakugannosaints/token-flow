@@ -34,9 +34,15 @@ Hooks.once("init", () => {
 	// ------------------------------------------------------------------
 	// Register a Token subclass that overrides the three protected methods
 	// controlling animation speed, duration and easing.
+	//
+	// IMPORTANT: Do NOT hard-code the base class as foundry.canvas.placeables.Token.
+	// Other systems (e.g. PF2e) may have already replaced CONFIG.Token.objectClass
+	// with their own subclass that adds system-specific methods (e.g. distanceTo).
+	// We must extend whatever is currently registered so that all existing
+	// functionality is preserved and only the animation methods are layered on top.
 	// ------------------------------------------------------------------
-	class TokenEaseToken extends foundry.canvas.placeables.Token {
-
+	const BaseTokenClass = CONFIG.Token.objectClass;
+	class TokenEaseToken extends BaseTokenClass {
 		/**
 		 * Return the effective easing function for this token's movement.
 		 * Reads (in priority order):
@@ -149,3 +155,4 @@ function addTokenEaseButton(app, buttons) {
 Hooks.on("getHeaderControlsApplicationV2", addTokenEaseButton);
 // Keep legacy hook as fallback for older v13 builds.
 Hooks.on("getTokenConfigHeaderButtons", addTokenEaseButton);
+
