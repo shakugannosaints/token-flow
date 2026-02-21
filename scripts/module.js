@@ -43,6 +43,7 @@ Hooks.once("init", () => {
 	// ------------------------------------------------------------------
 	const BaseTokenClass = CONFIG.Token.objectClass;
 	class TokenEaseToken extends BaseTokenClass {
+
 		/**
 		 * Return the effective easing function for this token's movement.
 		 * Reads (in priority order):
@@ -54,6 +55,8 @@ Hooks.once("init", () => {
 		 * @returns {Function|undefined}
 		 */
 		_getAnimationEasingFunction(options) {
+			if (options.easing !== undefined) return options.easing;
+
 			const tokenFlags = this.document.getFlag(CONSTANTS.MODULE_NAME, CONSTANTS.MOVEMENT_FLAG);
 			const easeName = (tokenFlags?.enabled ? tokenFlags?.ease : undefined)
 				?? game.settings.get(CONSTANTS.MODULE_NAME, "default-ease")
@@ -69,6 +72,8 @@ Hooks.once("init", () => {
 		 * @returns {number}
 		 */
 		_getAnimationMovementSpeed(options) {
+			if (options.movementSpeed !== undefined) return options.movementSpeed;
+
 			// Instant-move hotkey: return Infinity so duration collapses to 0.
 			if (this.document.isOwner && keyboardState.instantMove) return Infinity;
 
@@ -89,6 +94,8 @@ Hooks.once("init", () => {
 		 * @returns {number}
 		 */
 		_getAnimationDuration(from, to, options) {
+			if (options.duration !== undefined) return options.duration;
+
 			// Instant-move hotkey: zero duration.
 			if (this.document.isOwner && keyboardState.instantMove) return 0;
 
@@ -98,15 +105,6 @@ Hooks.once("init", () => {
 				?? 0;
 
 			if (explicitDuration > 0) return explicitDuration;
-
-			// Check "animation on movement keys" setting: if disabled and this is a
-			// small nudge (keyboard move, ≤ 1 grid space), snap instantly.
-			if (!game.settings.get(CONSTANTS.MODULE_NAME, "animation-on-movement-keys")) {
-				const dx = Math.abs((to.x ?? from.x) - from.x);
-				const dy = Math.abs((to.y ?? from.y) - from.y);
-				const gridSize = canvas?.grid?.size ?? 100;
-				if (Math.max(dx, dy) <= gridSize) return 0;
-			}
 
 			// Delegate to the standard speed-based duration calculation.
 			return super._getAnimationDuration(from, to, options);
@@ -121,8 +119,27 @@ Hooks.once("init", () => {
 		 */
 		async animate(to, options = {}) {
 			// Only inject easing when animating a movement (x or y present).
-			if ((to.x !== undefined || to.y !== undefined) && options.easing === undefined) {
-				options = { ...options, easing: this._getAnimationEasingFunction(options) };
+			const isMovement = to.x !== undefined || to.y !== undefined;
+			if (isMovement) {
+				// Use this.x/this.y (current canvas position) instead of this.document.x/y
+				// because the document is already updated to the target position by the time animate() is called.
+				const dx = Math.abs((to.x ?? this.x) - this.x);
+				const dy = Math.abs((to.y ?? this.y) - this.y);
+				const gridSize = canvas?.grid?.size ?? 100;
+				const isSmallMovement = Math.max(dx, dy) <= gridSize;
+
+				const animationOnKeys = game.settings.get(CONSTANTS.MODULE_NAME, "animation-on-movement-keys");
+
+				if (isSmallMovement && !animationOnKeys && !options.movementSpeed && !options.duration) {
+					// Bypass mod settings for keyboard movement (small nudges).
+					// We force the duration to 0 to make it an instant snap.
+					options.duration = 0;
+				} else {
+					// Apply mod's custom easing.
+					if (options.easing === undefined) {
+						options.easing = this._getAnimationEasingFunction(options);
+					}
+				}
 			}
 			return super.animate(to, options);
 		}
@@ -155,4 +172,3 @@ function addTokenEaseButton(app, buttons) {
 Hooks.on("getHeaderControlsApplicationV2", addTokenEaseButton);
 // Keep legacy hook as fallback for older v13 builds.
 Hooks.on("getTokenConfigHeaderButtons", addTokenEaseButton);
-
