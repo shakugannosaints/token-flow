@@ -1,4 +1,4 @@
-# Token Ease — v13 Rebuild
+# Token Flow
 
 **FoundryVTT v13 compatible rebuild of [Token Ease](https://github.com/fantasycalendar/FoundryVTT-TokenEase)**
 
@@ -21,7 +21,12 @@ Token Ease lets Game Masters and players customise how tokens animate when they 
 
 ## Installation
 
-download source code and put into your fvtt.
+1. In Foundry VTT's **Add-on Modules** screen, click **Install Module**.
+2. Paste the manifest URL:
+   ```
+   https://github.com/shakugannosaints/token-ease-v13/releases/latest/download/module.json
+   ```
+3. Click **Install**, then enable the module in your World.
 
 ---
 
@@ -69,4 +74,3 @@ The original Token Ease module used APIs that changed or were removed in Foundry
 
 This project is released under the [MIT License](LICENSE).  
 The easing functions are adapted from [easings.net](https://easings.net/) (open reference implementations).
-
